@@ -21,7 +21,7 @@ template<typename T>
 class ThreadPool{
 
 public:
-    ThreadPool(int thread_number = 8 ,int  max_requests = 10000);
+    ThreadPool(int thread_number = 6 ,int  max_requests = 10000);
     ~ThreadPool();
     bool Append(T* request);
 
