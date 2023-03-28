@@ -594,7 +594,6 @@ bool Http_Conn::UserVerify(const std::string &name, const std::string &pwd, bool
             flag = true;//注册成功
         }
         rwlock.unLock();
-        
     }
     LOG_DEBUG( "UserVerify success!!");
     return flag;
