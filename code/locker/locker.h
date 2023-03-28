@@ -22,6 +22,18 @@ public:
 
 };
 
+//读写锁
+class RWlocker{
+private:
+    pthread_rwlock_t m_rwlock;
+public:
+    RWlocker();
+    ~RWlocker();
+    bool rdLock();
+    bool wrLock();
+    bool unLock();
+};
+
 //条件变量类
 class Cond{
 public:
@@ -48,6 +60,7 @@ public:
 private:
 sem_t m_sem;
 };
+
 
 
 #endif

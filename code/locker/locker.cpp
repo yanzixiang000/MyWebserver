@@ -22,6 +22,31 @@ pthread_mutex_t* Locker::Get(){
     return &m_mutex;
 }
 
+//------------------------------------读写锁---------------
+RWlocker::RWlocker(){
+    if(pthread_rwlock_init(&m_rwlock, NULL)!= 0){
+        throw std::exception();
+    }
+}
+RWlocker::~RWlocker(){
+    pthread_rwlock_destroy(&m_rwlock);
+}
+
+bool RWlocker::rdLock(){
+    return pthread_rwlock_rdlock(&m_rwlock) == 0;
+};
+
+bool RWlocker::wrLock(){
+    return pthread_rwlock_wrlock(&m_rwlock) == 0;
+};
+
+
+bool RWlocker::unLock(){
+    return pthread_rwlock_unlock(&m_rwlock) == 0;
+}
+
+
+
 //------------------------------------条件变量---------------
 Cond::Cond(){
     if(pthread_cond_init(&m_cond, NULL) != 0){
