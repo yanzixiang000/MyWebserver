@@ -160,6 +160,8 @@ private:
 
     //因为close时，除了主线程的close，其他情况下线程也会close，为了防止静态变量被多次不正确改变，所以需要用互斥锁
     Locker mutex;
+    //因为用了mysql，防止幻读，加个读写锁
+    RWlocker rwlock;
     
     int m_bytes_to_send;// 需要发送的字节个数,上限代表是几个G，所以没必要再用long了
     int m_bytes_have_send;    // 已经发送的字节

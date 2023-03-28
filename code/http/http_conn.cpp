@@ -539,7 +539,7 @@ bool Http_Conn::UserVerify(const std::string &name, const std::string &pwd, bool
     MYSQL* sql;
     SqlConnRAII raii(&sql,  SqlConnPool::Instance());//从sql连接池中拿出来一个sql连接使用,析构后会自动放回去
     assert(sql);
-    
+
     bool flag = false;
     char order[256] = { 0 };
     MYSQL_RES *res = nullptr;
@@ -548,11 +548,16 @@ bool Http_Conn::UserVerify(const std::string &name, const std::string &pwd, bool
     //先生成查询语句，根据用户名去查询对应的用户名和密码
     snprintf(order, 256, "SELECT username, password FROM user WHERE username='%s' LIMIT 1", name.c_str());//order 及查询语句
     LOG_DEBUG("%s", order);
+
     //mysql_query函数查询，如果查询失败，返回false，找到值和没找到值都算查询成功
+    //查询加个读锁
+    rwlock.rdLock();
     if(mysql_query(sql, order)) {
         mysql_free_result(res);
         return false; 
     }
+    rwlock.unLock();
+
     res = mysql_store_result(sql);//再把结束放入res
     //从结果集中取得一行数据返回
     //进入循环说明存在对应的用户名，如果是登陆，密码正确就返回true，否则返回false，如果是注册，就不能注册了，也要返回false
@@ -580,11 +585,16 @@ bool Http_Conn::UserVerify(const std::string &name, const std::string &pwd, bool
         bzero(order, 256);
         snprintf(order, 256,"INSERT INTO user(username, password) VALUES('%s','%s')", name.c_str(), pwd.c_str());
         LOG_DEBUG( "%s", order);
+        //加写锁
+        rwlock.wrLock();
         if(mysql_query(sql, order)) { 
             LOG_DEBUG( "Insert error!");
             flag = false; //注册失败
+        }else{
+            flag = true;//注册成功
         }
-        flag = true;//注册成功
+        rwlock.unLock();
+        
     }
     LOG_DEBUG( "UserVerify success!!");
     return flag;
